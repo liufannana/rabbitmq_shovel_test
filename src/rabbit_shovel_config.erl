@@ -82,12 +82,9 @@ parse_shovel_config_dict(Dict) ->
                        end
        end || {Fun, Key} <-
                   [{fun parse_endpoint/1,             sources},
-                   {fun parse_endpoint/1,             destinations},
                    {fun parse_non_negative_integer/1, prefetch_count},
                    {fun parse_ack_mode/1,             ack_mode},
                    {fun parse_binary/1,               queue},
-                   make_parse_publish(publish_fields),
-                   make_parse_publish(publish_properties),
                    {fun parse_non_negative_number/1,  reconnect_delay}]],
       #shovel{}).
 
@@ -193,48 +190,6 @@ parse_ack_mode({Val, Pos}) when Val =:= no_ack orelse
 parse_ack_mode({WrongVal, _Pos}) ->
     fail({ack_mode_value_requires_one_of, {no_ack, on_publish, on_confirm},
           WrongVal}).
-
-make_parse_publish(publish_fields) ->
-    {make_parse_publish1(record_info(fields, 'basic.publish')), publish_fields};
-make_parse_publish(publish_properties) ->
-    {make_parse_publish1(record_info(fields, 'P_basic')), publish_properties}.
-
-make_parse_publish1(ValidFields) ->
-    fun ({Fields, Pos}) when is_list(Fields) ->
-            make_publish_fun(Fields, Pos, ValidFields);
-        ({Fields, _Pos}) ->
-            fail({require_list, Fields})
-    end.
-
-make_publish_fun(Fields, Pos, ValidFields) ->
-    SuppliedFields = proplists:get_keys(Fields),
-    case SuppliedFields -- ValidFields of
-        [] ->
-            FieldIndices = make_field_indices(ValidFields, Fields),
-            Fun = fun (_SrcUri, _DestUri, Publish) ->
-                          lists:foldl(fun ({Pos1, Value}, Pub) ->
-                                              setelement(Pos1, Pub, Value)
-                                      end, Publish, FieldIndices)
-                  end,
-            return({Fun, Pos});
-        Unexpected ->
-            fail({unexpected_fields, Unexpected, ValidFields})
-    end.
-
-make_field_indices(Valid, Fields) ->
-    make_field_indices(Fields, field_map(Valid, 2), []).
-
-make_field_indices([], _Idxs , Acc) ->
-    lists:reverse(Acc);
-make_field_indices([{Key, Value} | Rest], Idxs, Acc) ->
-    make_field_indices(Rest, Idxs, [{dict:fetch(Key, Idxs), Value} | Acc]).
-
-field_map(Fields, Idx0) ->
-    {Dict, _IdxMax} =
-        lists:foldl(fun (Field, {Dict1, Idx1}) ->
-                            {dict:store(Field, Idx1, Dict1), Idx1 + 1}
-                    end, {dict:new(), Idx0}, Fields),
-    Dict.
 
 duplicate_keys(PropList) ->
     proplists:get_keys(

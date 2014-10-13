@@ -8,6 +8,114 @@
                      {publish_fields,     []},
                      {publish_properties, []},
                      {reconnect_delay,    5}]
-         }]},
+         },
+         {shovels, [ {push1_android1_shovel,
+                    [ {sources,
+                        [ {brokers, [ "amqp://guest:guest@192.168.22.131:5672/%2f"
+                                    ]}
+                        , {declarations, [ {'exchange.declare',
+                                              [ {exchange, <<"push1">>}
+                                              , {type, <<"direct">>}
+                                              , durable
+                                              ]}
+                                         , {'queue.declare',
+                                              [{queue, <<"android1">>},
+                                                durable,
+                                                {arguments,
+                                                 []}]}
+                                         , {'queue.bind',
+                                              [ {exchange, <<"push1">>}
+                                              , {queue,    <<"android1">>}
+                                              , {routing_key, <<"push.android">>}
+                                              ]}
+                                         ]}
+                        ]}
+                    , {queue, <<>>}
+                    , {prefetch_count, 10}
+                    , {ack_mode, on_confirm}
+                    , {reconnect_delay, 5}
+                    ]}
+
+                    ,{push1_ios1_shovel,
+                    [ {sources,
+                        [ {brokers, [ "amqp://guest:guest@192.168.22.131:5672/%2f"
+                                    ]}
+                        , {declarations, [ {'exchange.declare',
+                                              [ {exchange, <<"push1">>}
+                                              , {type, <<"direct">>}
+                                              , durable
+                                              ]}
+                                         , {'queue.declare',
+                                              [{queue, <<"ios1">>},
+                                                durable,
+                                                {arguments,
+                                                 []}]}
+                                         , {'queue.bind',
+                                              [ {exchange, <<"push1">>}
+                                              , {queue,    <<"ios1">>}
+                                              , {routing_key, <<"push.ios">>}
+                                              ]}
+                                         ]}
+                        ]}
+                    , {queue, <<>>}
+                    , {prefetch_count, 10}
+                    , {ack_mode, on_confirm}
+                    , {reconnect_delay, 5}
+                    ]}
+                  , {push2_android2_shovel,
+                    [ {sources,
+                        [ {brokers, [ "amqp://guest:guest@192.168.22.156:5672/%2f"
+                                    ]}
+                        , {declarations, [ {'exchange.declare',
+                                              [ {exchange, <<"push2">>}
+                                              , {type, <<"direct">>}
+                                              , durable
+                                              ]}
+                                         , {'queue.declare',
+                                              [{queue, <<"android2">>},
+                                                durable,
+                                                {arguments,
+                                                 []}]}
+                                         , {'queue.bind',
+                                              [ {exchange, <<"push2">>}
+                                              , {queue,    <<"android2">>}
+                                              , {routing_key, <<"push.android">>}
+                                              ]}
+                                         ]}
+                        ]}
+                    , {queue, <<>>}
+                    , {prefetch_count, 10}
+                    , {ack_mode, on_confirm}
+                    , {reconnect_delay, 5}
+                    ]}
+
+                    ,{push2_ios2_shovel,
+                    [ {sources,
+                        [ {brokers, [ "amqp://guest:guest@192.168.22.156:5672/%2f"
+                                    ]}
+                        , {declarations, [ {'exchange.declare',
+                                              [ {exchange, <<"push2">>}
+                                              , {type, <<"direct">>}
+                                              , durable
+                                              ]}
+                                         , {'queue.declare',
+                                              [{queue, <<"ios2">>},
+                                                durable,
+                                                {arguments,
+                                                 []}]}
+                                         , {'queue.bind',
+                                              [ {exchange, <<"push2">>}
+                                              , {queue,    <<"ios2">>}
+                                              , {routing_key, <<"push.ios">>}
+                                              ]}
+                                         ]}
+                        ]}
+                    , {queue, <<>>}
+                    , {prefetch_count, 10}
+                    , {ack_mode, on_confirm}
+                    , {reconnect_delay, 5}
+                    ]}
+                ]}
+         ]},
   {mod, {rabbit_shovel, []}},
   {applications, [kernel, stdlib, amqp_client]}]}.

@@ -15,7 +15,7 @@
 %%
 
 -module(rabbit_shovel_worker_sup).
--behaviour(mirrored_supervisor).
+-behaviour(supervisor2).
 
 -export([start_link/2, init/1]).
 
@@ -23,8 +23,7 @@
 -include_lib("rabbit_common/include/rabbit.hrl").
 
 start_link(ShovelName, ShovelConfig) ->
-    mirrored_supervisor:start_link({local, ShovelName}, ShovelName,
-                                   fun rabbit_misc:execute_mnesia_transaction/1,
+    supervisor2:start_link({local, ShovelName},
                                    ?MODULE, [ShovelName, ShovelConfig]).
 
 init([Name, Config]) ->

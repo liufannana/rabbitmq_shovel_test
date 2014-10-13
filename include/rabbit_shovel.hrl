@@ -21,7 +21,7 @@
 
 -record(shovel,
         {sources,
-         destinations,
+         %%destinations,
          prefetch_count,
          ack_mode,
          publish_fields,
