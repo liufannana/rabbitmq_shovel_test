@@ -27,8 +27,9 @@ start_link(ShovelName, ShovelConfig) ->
                                    ?MODULE, [ShovelName, ShovelConfig]).
 
 init([Name, Config]) ->
+    Worker = proplists:get_value(worker, Config),
     ChildSpecs = [{Name,
-                   {rabbit_shovel_worker, start_link, [static, Name, Config]},
+                   {Worker, start_link, [static, Name, Config]},
                    case proplists:get_value(reconnect_delay, Config, none) of
                        N when is_integer(N) andalso N > 0 -> {permanent, N};
                        _                                  -> temporary
