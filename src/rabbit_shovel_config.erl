@@ -85,7 +85,8 @@ parse_shovel_config_dict(Dict) ->
                    {fun parse_non_negative_integer/1, prefetch_count},
                    {fun parse_ack_mode/1,             ack_mode},
                    {fun parse_binary/1,               queue},
-                   {fun parse_non_negative_number/1,  reconnect_delay}]],
+                   {fun parse_non_negative_number/1,  reconnect_delay},
+                   {fun parse_worker/1,               worker}]],
       #shovel{}).
 
 %% --=: Plain state monad implementation start :=--
@@ -190,6 +191,11 @@ parse_ack_mode({Val, Pos}) when Val =:= no_ack orelse
 parse_ack_mode({WrongVal, _Pos}) ->
     fail({ack_mode_value_requires_one_of, {no_ack, on_publish, on_confirm},
           WrongVal}).
+
+parse_worker({Worker, Pos}) when is_atom(Worker) ->
+  return({Worker, Pos});
+parse_worker({Worker, _Pos}) ->
+  fail({require_atom, Worker}).
 
 duplicate_keys(PropList) ->
     proplists:get_keys(
