@@ -91,7 +91,7 @@ handle_info({#'basic.deliver'{delivery_tag = Tag,
              _Msg = #amqp_msg{props = _Props = #'P_basic'{}, payload = Payload}},
             State = #state{inbound_ch = InboundChan, config = #shovel{ack_mode = on_confirm}}) ->
     %% confirm the message
-    io:format("this is msg ~p~n", [Payload]),
+    pushwork_worker:send_tokens(Payload),
     ok = amqp_channel:cast(
            InboundChan, #'basic.ack'{delivery_tag = Tag}),
     {noreply, State};
